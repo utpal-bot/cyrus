@@ -51,7 +51,7 @@
       color: #ffffff;
     }
 
-    /* Center Visual Orb */
+    /* Center Visual Orb Container */
     .center-container {
       display: flex;
       flex-direction: column;
@@ -146,6 +146,11 @@
       border-color: #ff5252 !important;
       color: #ffffff !important;
       box-shadow: 0 0 16px rgba(211, 47, 47, 0.5);
+    }
+    .circle-btn.recording {
+      background-color: #00e676 !important;
+      color: #000000 !important;
+      box-shadow: 0 0 16px rgba(0, 230, 118, 0.6);
     }
     .circle-btn.close {
       background: #ffffff;
@@ -313,7 +318,7 @@
       </div>
     </div>
     <div class="drawer-footer" id="memoryInfo">
-      Memory: Active • Gemini Brain
+      Audio Pipeline: Direct MediaRecorder Active
     </div>
   </div>
 
@@ -336,12 +341,6 @@
         <option value="en-US">English (US)</option>
       </select>
     </div>
-    <div class="sheet-row">
-      <label>Aura Effect</label>
-      <select>
-        <option selected>Neon Green + Electric Blue</option>
-      </select>
-    </div>
   </div>
 
   <!-- Top Bar -->
@@ -355,7 +354,7 @@
     <div class="orb-canvas-container">
       <canvas id="orbCanvas" width="540" height="540"></canvas>
     </div>
-    <div class="status-text" id="status">Bolo Boss, Cyras sun raha hai...</div>
+    <div class="status-text" id="status">Bolo Boss, mic tap karke bolna shuru karo...</div>
   </div>
 
   <!-- Bottom Bar -->
@@ -364,7 +363,7 @@
       <span class="plus-icon" onclick="plusAction()">+</span>
       <input type="text" id="textInput" placeholder="Cyras se kuch pucho..." onkeydown="handleEnter(event)">
     </div>
-    <button class="circle-btn" id="micBtn" onclick="toggleMicMute()">
+    <button class="circle-btn" id="micBtn" onclick="handleMicClick()">
       <svg id="micIcon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
         <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
@@ -398,16 +397,21 @@
     const menuDrawer = document.getElementById('menuDrawer');
     const settingsSheet = document.getElementById('settingsSheet');
 
-    let state = 'idle'; // 'idle', 'listening', 'thinking', 'speaking'
+    let state = 'idle'; // 'idle', 'recording', 'thinking', 'speaking'
     let isUserMicMuted = false;
     let t = 0;
     let currentAudio = null;
     let audioContext = null;
 
+    // Direct Audio MediaRecorder Variables
+    let mediaRecorder = null;
+    let audioChunks = [];
+    let micStream = null;
+
     // Psychological Learning Profile Storage
     let bossPsychology = localStorage.getItem('cyras_boss_profile') || "Tone: Direct, loyal friend. Preferences: Likes crisp, respectful answers, values practicality and brotherhood.";
 
-    // Chat Memory Initialization
+    // Chat Memory
     let chatMemory = JSON.parse(localStorage.getItem('cyras_chat_memory') || '[]');
     function setupSystemPrompt() {
       const systemInstruction = `You are Cyras, an energetic, loyal 15-year-old boy companion and AI assistant.
@@ -429,12 +433,12 @@ Adapt your tone based on Boss's mood: if Boss is casual, be fun and witty; if Bo
 
     // Smooth Green + Blue Fluid Orb Animation
     function drawOrb() {
-      t += (state === 'speaking' ? 0.035 : (state === 'listening' ? 0.02 : 0.01));
+      t += (state === 'speaking' ? 0.035 : (state === 'recording' ? 0.03 : 0.01));
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       const cx = canvas.width / 2;
       const cy = canvas.height / 2;
-      const r = 205 + (state === 'speaking' ? Math.sin(t * 3.5) * 11 : Math.sin(t * 1.2) * 5);
+      const r = 205 + (state === 'speaking' ? Math.sin(t * 3.5) * 11 : (state === 'recording' ? Math.sin(t * 4) * 8 : Math.sin(t * 1.2) * 5));
 
       const grad = ctx.createLinearGradient(
         cx + Math.cos(t) * 80,
@@ -443,9 +447,9 @@ Adapt your tone based on Boss's mood: if Boss is casual, be fun and witty; if Bo
         cy + r
       );
 
-      grad.addColorStop(0, '#00e676');      // Neon / Mint Green
+      grad.addColorStop(0, '#00e676');      // Neon Green
       grad.addColorStop(0.35, '#2979ff');   // Electric Blue
-      grad.addColorStop(0.7, '#82b1ff');    // Soft Sky Blue
+      grad.addColorStop(0.7, '#82b1ff');    // Sky Blue
       grad.addColorStop(1, '#ffffff');      // White Core Glow
 
       ctx.save();
@@ -478,98 +482,109 @@ Adapt your tone based on Boss's mood: if Boss is casual, be fun and witty; if Bo
     }
     drawOrb();
 
-    // Hardware Microphone Stream Access
-    let mediaStream = null;
-    let recognition = null;
-
-    async function initHardwareMic() {
+    // Direct Hardware Microphone Handling (MediaRecorder)
+    async function startHardwareRecording() {
       try {
-        if (!mediaStream && navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-          mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        if (!micStream) {
+          micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
         }
+        audioChunks = [];
+        mediaRecorder = new MediaRecorder(micStream);
+
+        mediaRecorder.ondataavailable = (event) => {
+          if (event.data.size > 0) {
+            audioChunks.push(event.data);
+          }
+        };
+
+        mediaRecorder.onstop = async () => {
+          if (isUserMicMuted) return;
+          const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+          statusText.innerText = "Aawaz process ho rahi hai, Boss...";
+          sendAudioToGemini(audioBlob);
+        };
+
+        mediaRecorder.start();
+        state = 'recording';
+        micBtn.classList.add('recording');
+        statusText.innerText = "Cyras sun raha hai... Bolne ke baad dobara tap karein";
       } catch (err) {
-        console.warn("Hardware mic access:", err);
+        console.error("Mic Error:", err);
+        statusText.innerText = "Mic access enable karein settings me, Boss!";
       }
     }
 
-    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      recognition = new SpeechRecognition();
-      recognition.continuous = false;
-      recognition.interimResults = false;
-      recognition.lang = 'hi-IN';
-
-      recognition.onstart = () => {
-        if (!isUserMicMuted && state !== 'speaking') {
-          state = 'listening';
-          statusText.innerText = "Cyras sun raha hai, Boss...";
-        }
-      };
-
-      recognition.onresult = (event) => {
-        if (isUserMicMuted) return;
-        const query = event.results[0][0].transcript;
-        statusText.innerText = `"${query}"`;
-        processBrain(query);
-      };
-
-      recognition.onerror = () => {
-        if (!isUserMicMuted && state !== 'speaking') {
-          setTimeout(startListening, 600);
-        }
-      };
-
-      recognition.onend = () => {
-        if (!isUserMicMuted && state !== 'speaking' && state !== 'thinking') {
-          setTimeout(startListening, 500);
-        }
-      };
+    function stopHardwareRecording() {
+      if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+        mediaRecorder.stop();
+        state = 'idle';
+        micBtn.classList.remove('recording');
+      }
     }
 
-    function startListening() {
-      if (isUserMicMuted || state === 'speaking' || state === 'thinking') return;
-      try {
-        initHardwareMic();
-        recognition.start();
-      } catch (e) {}
+    // Mic Click Logic: Record / Send / Mute Toggle
+    function handleMicClick() {
+      if (isUserMicMuted) {
+        // Unmute
+        isUserMicMuted = false;
+        micBtn.classList.remove('muted');
+        statusText.innerText = "Mic Unmuted. Tap karke bolein Boss!";
+        return;
+      }
+
+      if (state === 'recording') {
+        stopHardwareRecording();
+      } else {
+        startHardwareRecording();
+      }
     }
 
-    // True Mic Mute Button (Blocks user input ONLY, does NOT mute Cyras speaking)
-    function toggleMicMute() {
-      initHardwareMic();
+    // Double tap or hold mic button to mute
+    let pressTimer;
+    micBtn.addEventListener('contextmenu', (e) => {
+      e.preventDefault();
+      toggleMuteMode();
+    });
+
+    function toggleMuteMode() {
       if (!isUserMicMuted) {
+        stopHardwareRecording();
         isUserMicMuted = true;
         micBtn.classList.add('muted');
-        micBtn.innerHTML = `
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="1" y1="1" x2="23" y2="23"></line>
-            <path d="M9 9v3a3 3 0 0 0 5.12 2.12M15 9.34V4a3 3 0 0 0-5.94-.6"></path>
-            <path d="M17 16.95A7 7 0 0 1 5 12v-2m14 0v2a7 7 0 0 1-.11 1.23"></path>
-            <line x1="12" y1="19" x2="12" y2="23"></line>
-            <line x1="8" y1="23" x2="16" y2="23"></line>
-          </svg>
-        `;
-        if (recognition) recognition.stop();
-        if (state === 'listening') state = 'idle';
-        if (state !== 'speaking') {
-          statusText.innerText = "Aapka Mic Mute hai (Cyras nahi sunega)";
-        }
+        statusText.innerText = "Mic Muted (Red). Cyras aapki aawaz nahi sunega.";
       } else {
         isUserMicMuted = false;
         micBtn.classList.remove('muted');
-        micBtn.innerHTML = `
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
-            <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
-            <line x1="12" y1="19" x2="12" y2="23"></line>
-            <line x1="8" y1="23" x2="16" y2="23"></line>
-          </svg>
-        `;
-        if (state !== 'speaking') {
-          statusText.innerText = "Cyras sun raha hai, Boss...";
-          startListening();
-        }
+        statusText.innerText = "Mic Active. Bolo Boss!";
       }
+    }
+
+    // Convert Blob to Base64 & Send to Gemini Multimodal Audio API
+    async function sendAudioToGemini(blob) {
+      state = 'thinking';
+      statusText.innerText = "Soch raha hoon, Boss...";
+
+      const reader = new FileReader();
+      reader.readAsDataURL(blob);
+      reader.onloadend = async () => {
+        const base64Audio = reader.result.split(',')[1];
+
+        const audioContent = {
+          role: "user",
+          parts: [
+            { text: "Boss ne ye aawaz boli hai. Isko sun kar energetic dost ki tarah Hinglish me Boss bolte hue short jawab do:" },
+            {
+              inline_data: {
+                mime_type: "audio/webm",
+                data: base64Audio
+              }
+            }
+          ]
+        };
+
+        chatMemory.push(audioContent);
+        sendToGeminiEndpoint();
+      };
     }
 
     function handleEnter(e) {
@@ -577,22 +592,15 @@ Adapt your tone based on Boss's mood: if Boss is casual, be fun and witty; if Bo
         const msg = textInput.value.trim();
         textInput.value = '';
         statusText.innerText = `"${msg}"`;
-        processBrain(msg);
+        chatMemory.push({ role: "user", parts: [{ text: msg }] });
+        sendToGeminiEndpoint();
       }
     }
 
-    // Gemini API Request & Psychological Update Loop
-    async function processBrain(userPrompt) {
+    async function sendToGeminiEndpoint() {
       state = 'thinking';
       statusText.innerText = "Soch raha hoon, Boss...";
-      if (recognition) recognition.stop();
 
-      chatMemory.push({
-        role: "user",
-        parts: [{ text: userPrompt }]
-      });
-
-      // Keep recent 18 messages to preserve tokens & speed
       if (chatMemory.length > 20) {
         chatMemory = [chatMemory[0], chatMemory[1], ...chatMemory.slice(-18)];
       }
@@ -611,43 +619,17 @@ Adapt your tone based on Boss's mood: if Boss is casual, be fun and witty; if Bo
           reply = data.candidates[0].content.parts[0].text;
         }
 
-        chatMemory.push({
-          role: "model",
-          parts: [{ text: reply }]
-        });
+        chatMemory.push({ role: "model", parts: [{ text: reply }] });
         localStorage.setItem('cyras_chat_memory', JSON.stringify(chatMemory));
-
-        // Background Psychological Learning Check
-        learnPsychology(userPrompt, reply);
 
         playHumanVoice(reply);
       } catch (err) {
         console.error("Gemini Error:", err);
-        playHumanVoice("Network me thoda issue lag raha hai Boss, dobara try karein!");
+        playHumanVoice("Network me thoda issue hai Boss, dobara bolna!");
       }
     }
 
-    // Silent Psychology Learning Function
-    async function learnPsychology(lastUserText, lastReply) {
-      try {
-        const learnPrompt = `Based on Boss's message "${lastUserText}", update in one short sentence what you learn about Boss's mood, habits, or preferences. Keep it concise.`;
-        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ contents: [{ role: 'user', parts: [{ text: learnPrompt }] }] })
-        });
-        const resData = await res.json();
-        if (resData.candidates && resData.candidates[0].content.parts[0].text) {
-          bossPsychology = resData.candidates[0].content.parts[0].text.trim();
-          localStorage.setItem('cyras_boss_profile', bossPsychology);
-          setupSystemPrompt();
-        }
-      } catch (e) {
-        // Silent pass
-      }
-    }
-
-    // Ultra-Realistic 15yo Human Boy Voice via ElevenLabs with Web Audio Fallback
+    // Ultra-Realistic 15yo Human Boy Voice via ElevenLabs with Fallback
     async function playHumanVoice(text) {
       state = 'speaking';
       statusText.innerText = text;
@@ -680,16 +662,10 @@ Adapt your tone based on Boss's mood: if Boss is casual, be fun and witty; if Bo
 
         currentAudio.onended = () => {
           state = 'idle';
-          if (!isUserMicMuted) {
-            statusText.innerText = "Bolo Boss, sun raha hoon...";
-            startListening();
-          } else {
-            statusText.innerText = "Aapka Mic Mute hai";
-          }
+          statusText.innerText = isUserMicMuted ? "Aapka Mic Mute hai" : "Bolo Boss, sun raha hoon...";
         };
 
         currentAudio.play().catch(() => {
-          // If browser blocks audio element play, fallback to Web Speech
           speakNativeFallback(text);
         });
       } catch (err) {
@@ -706,21 +682,21 @@ Adapt your tone based on Boss's mood: if Boss is casual, be fun and witty; if Bo
         utter.rate = 1.05;
         utter.onend = () => {
           state = 'idle';
-          if (!isUserMicMuted) startListening();
+          statusText.innerText = "Bolo Boss, sun raha hoon...";
         };
         window.speechSynthesis.speak(utter);
       }
     }
 
     function stopCyras() {
+      stopHardwareRecording();
       if (currentAudio) currentAudio.pause();
       if (window.speechSynthesis) window.speechSynthesis.cancel();
-      if (recognition) recognition.stop();
       state = 'idle';
       statusText.innerText = "Rok diya Boss. Baat karni ho to mic par tap karo.";
     }
 
-    // Drawers & Sheets
+    // Drawers
     function openMenu() {
       overlay.classList.add('active');
       menuDrawer.classList.add('open');
@@ -752,7 +728,7 @@ Adapt your tone based on Boss's mood: if Boss is casual, be fun and witty; if Bo
     }
 
     function showPsychologyProfile() {
-      alert("Boss Psychology Memory Profile:\n\n" + (localStorage.getItem('cyras_boss_profile') || "Initial profile building in progress..."));
+      alert("Boss Psychology Memory Profile:\n\n" + (localStorage.getItem('cyras_boss_profile') || "Direct friend mode active."));
       closeAllDrawers();
     }
 
@@ -766,9 +742,8 @@ Adapt your tone based on Boss's mood: if Boss is casual, be fun and witty; if Bo
       textInput.focus();
     }
 
-    // Audio & Mic Context Unlock on First Interaction
+    // Audio Context Unlock on First User Click
     window.addEventListener('click', () => {
-      initHardwareMic();
       if (!audioContext) {
         const AudioCtx = window.AudioContext || window.webkitAudioContext;
         if (AudioCtx) audioContext = new AudioCtx();
