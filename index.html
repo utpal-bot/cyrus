@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -9,448 +9,248 @@
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      -webkit-tap-highlight-color: transparent;
       user-select: none;
     }
     body {
       background-color: #000000;
       color: #ffffff;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       height: 100vh;
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
+      align-items: center;
+      justify-content: center;
       overflow: hidden;
-      position: relative;
     }
-    .top-bar {
-      display: flex;
-      justify-content: flex-start;
-      align-items: center;
-      padding: 16px 20px;
-      z-index: 20;
-    }
-    .icon-btn {
-      background: none;
-      border: none;
-      color: #777777;
-      font-size: 26px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 44px;
-      height: 44px;
-      border-radius: 50%;
-    }
-    .icon-btn:active {
-      background: #1c1c1c;
-      color: #ffffff;
-    }
-    .center-container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      flex: 1;
-      position: relative;
-      z-index: 5;
-    }
-    .orb-canvas-container {
-      position: relative;
-      width: 290px;
-      height: 290px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-    }
-    canvas {
-      width: 290px;
-      height: 290px;
-      border-radius: 50%;
-      filter: drop-shadow(0 0 55px rgba(0, 230, 118, 0.45)) drop-shadow(0 0 85px rgba(41, 121, 255, 0.35));
-      transition: transform 0.2s ease;
-    }
-    .orb-canvas-container:active canvas {
-      transform: scale(0.96);
-    }
-    .status-text {
-      margin-top: 36px;
-      color: #cfcfcf;
-      font-size: 16px;
-      letter-spacing: 0.3px;
-      text-align: center;
-      padding: 0 28px;
-      min-height: 32px;
-      max-width: 90%;
-      line-height: 1.5;
-    }
-    .tap-hint {
-      margin-top: 14px;
-      font-size: 12px;
+    .header {
+      position: absolute;
+      top: 30px;
+      font-size: 14px;
+      letter-spacing: 3px;
       color: #555555;
-      letter-spacing: 0.6px;
       text-transform: uppercase;
     }
-    .overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.75);
-      backdrop-filter: blur(5px);
-      z-index: 50;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.3s ease;
-    }
-    .overlay.active {
-      opacity: 1;
-      pointer-events: auto;
-    }
-    .menu-drawer {
-      position: fixed;
-      top: 0;
-      left: -290px;
-      width: 280px;
-      height: 100%;
-      background: #121212;
-      z-index: 60;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      padding: 24px 18px;
-      transition: left 0.3s cubic-bezier(0.2, 0.9, 0.3, 1);
-    }
-    .menu-drawer.open {
-      left: 0;
-    }
-    .drawer-header {
-      font-size: 20px;
-      font-weight: 600;
-      color: #ffffff;
-      margin-bottom: 24px;
+    .orb-container {
+      position: relative;
+      width: 250px;
+      height: 250px;
       display: flex;
       align-items: center;
-      justify-content: space-between;
-    }
-    .drawer-item {
-      padding: 12px 14px;
-      border-radius: 12px;
-      color: #cccccc;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      font-size: 15px;
+      justify-content: center;
       cursor: pointer;
     }
-    .drawer-item:active {
-      background: #1f1f1f;
-      color: #ffffff;
+    .orb {
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, #00f2fe, #4facfe, #000814);
+      box-shadow: 0 0 60px rgba(0, 242, 254, 0.4), inset 0 0 40px rgba(255, 255, 255, 0.6);
+      transition: transform 0.4s ease, box-shadow 0.4s ease, background 0.4s ease;
+      animation: float 4s ease-in-out infinite;
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0px) scale(1); }
+      50% { transform: translateY(-10px) scale(1.02); }
+    }
+    .orb.listening {
+      background: radial-gradient(circle at 35% 35%, #00ff87, #60efff, #001f11);
+      box-shadow: 0 0 80px rgba(0, 255, 135, 0.7), inset 0 0 40px rgba(255, 255, 255, 0.8);
+      animation: pulse-listen 1.5s infinite;
+    }
+    @keyframes pulse-listen {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.12); }
+    }
+    .orb.speaking {
+      background: radial-gradient(circle at 35% 35%, #ff0844, #ffb199, #2b0008);
+      box-shadow: 0 0 80px rgba(255, 8, 68, 0.7), inset 0 0 40px rgba(255, 255, 255, 0.8);
+      animation: pulse-speak 0.8s infinite alternate;
+    }
+    @keyframes pulse-speak {
+      0% { transform: scale(0.98); }
+      100% { transform: scale(1.15); }
+    }
+    .status-text {
+      margin-top: 50px;
+      font-size: 16px;
+      letter-spacing: 1px;
+      color: #888888;
+      text-align: center;
+      max-width: 80%;
+      height: 48px;
+      line-height: 24px;
+    }
+    .memory-badge {
+      position: absolute;
+      bottom: 25px;
+      font-size: 11px;
+      letter-spacing: 1.5px;
+      color: #333333;
+      text-transform: uppercase;
     }
   </style>
 </head>
 <body>
 
-  <div class="overlay" id="overlay" onclick="closeDrawer()"></div>
+  <div class="header">Cyras Sovereign Core</div>
 
-  <div class="menu-drawer" id="menuDrawer">
-    <div>
-      <div class="drawer-header">
-        <span>Cyras Core AI</span>
-        <span style="cursor:pointer;" onclick="closeDrawer()">✕</span>
-      </div>
-      <div class="drawer-item" onclick="viewMemory()">
-        <span>🧠</span> <span>Saved Memories</span>
-      </div>
-      <div class="drawer-item" onclick="clearMemory()">
-        <span>🗑️</span> <span>Clear Memory</span>
-      </div>
-      <div class="drawer-item" onclick="location.reload()">
-        <span>🔄</span> <span>Reload System</span>
-      </div>
-    </div>
-    <div style="font-size: 12px; color: #666666;">
-      Permanent Local Engine • Direct Audio Stream
-    </div>
+  <div class="orb-container" id="orbBtn">
+    <div class="orb" id="orb"></div>
   </div>
 
-  <div class="top-bar">
-    <button class="icon-btn" onclick="openDrawer()">☰</button>
-  </div>
-
-  <div class="center-container">
-    <div class="orb-canvas-container" onclick="toggleVoiceInteraction()">
-      <canvas id="orbCanvas" width="580" height="580"></canvas>
-    </div>
-    <div class="status-text" id="status">Tap orb to talk, Boss...</div>
-    <div class="tap-hint" id="hint">Voice Connected</div>
-  </div>
-
-  <div style="height: 40px;"></div>
+  <div class="status-text" id="status">Tap Orb to Activate Cyras</div>
+  <div class="memory-badge" id="memoryStatus">Persistent Memory Online</div>
 
   <script>
-    // --- 1. STRONG INDEPENDENT LOCAL MEMORY ---
-    const MEMORY_KEY = "CYRAS_SOVEREIGN_CORE_MEMORY";
-
-    function getStorageMemory() {
-      let data = localStorage.getItem(MEMORY_KEY);
-      if (!data) {
-        let initial = {
-          boss_name: "Rudra Trader",
-          callsign: "Boss",
-          facts: ["Boss is building Cyras AI assistant", "Boss loves tech, coding and trading"],
-          history: []
-        };
-        localStorage.setItem(MEMORY_KEY, JSON.stringify(initial));
-        return initial;
-      }
-      return JSON.parse(data);
-    }
-
-    function saveStorageMemory(mem) {
-      localStorage.setItem(MEMORY_KEY, JSON.stringify(mem));
-    }
-
-    function autoLearn(userText) {
-      let lower = userText.toLowerCase().trim();
-      let mem = getStorageMemory();
-      let learned = false;
-
-      if (lower.startsWith("yaad rakh") || lower.startsWith("note this") || lower.includes("mujhe pasand hai") || lower.includes("mera naam")) {
-        let clean = userText.replace(/yaad rakh(o)?|note this/gi, "").trim();
-        if (clean && !mem.facts.includes(clean)) {
-          mem.facts.push(clean);
-          learned = true;
-        }
-      }
-      if (learned) saveStorageMemory(mem);
-      return learned;
-    }
-
-    // --- 2. FUTURISTIC ORB ANIMATION ---
-    const canvas = document.getElementById('orbCanvas');
-    const ctx = canvas.getContext('2d');
+    const orb = document.getElementById('orb');
+    const orbBtn = document.getElementById('orbBtn');
     const statusText = document.getElementById('status');
-    const hintText = document.getElementById('hint');
-    let state = 'idle';
-    let t = 0;
 
-    function drawOrb() {
-      t += (state === 'speaking' ? 0.04 : (state === 'listening' ? 0.03 : 0.01));
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      const cx = canvas.width / 2;
-      const cy = canvas.height / 2;
-      const r = 215 + (state === 'speaking' ? Math.sin(t * 4) * 14 : (state === 'listening' ? Math.sin(t * 3) * 9 : Math.sin(t * 1.2) * 5));
-
-      const grad = ctx.createLinearGradient(
-        cx + Math.cos(t) * 90,
-        cy - r + Math.sin(t) * 45,
-        cx - Math.sin(t) * 70,
-        cy + r
-      );
-
-      if (state === 'listening') {
-        grad.addColorStop(0, '#00e676');
-        grad.addColorStop(0.5, '#00b0ff');
-        grad.addColorStop(1, '#ffffff');
-      } else {
-        grad.addColorStop(0, '#00e676');
-        grad.addColorStop(0.35, '#2979ff');
-        grad.addColorStop(0.7, '#82b1ff');
-        grad.addColorStop(1, '#ffffff');
+    // Local Sovereign Memory Engine
+    const Memory = {
+      getHistory: () => JSON.parse(localStorage.getItem('cyras_chat') || '[]'),
+      saveChat: (role, text) => {
+        const h = Memory.getHistory();
+        h.push({ role, text, time: Date.now() });
+        if (h.length > 12) h.shift();
+        localStorage.setItem('cyras_chat', JSON.stringify(h));
       }
+    };
 
-      ctx.save();
-      ctx.beginPath();
-      ctx.arc(cx, cy, r, 0, Math.PI * 2);
-      ctx.fillStyle = grad;
-      ctx.fill();
-
-      ctx.globalCompositeOperation = 'source-atop';
-      const waveGrad = ctx.createRadialGradient(cx + Math.sin(t * 1.3) * 60, cy + Math.cos(t * 1.3) * 60, 25, cx, cy, r);
-      waveGrad.addColorStop(0, 'rgba(255, 255, 255, 0.9)');
-      waveGrad.addColorStop(0.4, 'rgba(0, 230, 118, 0.25)');
-      waveGrad.addColorStop(0.8, 'rgba(41, 121, 255, 0.15)');
-      waveGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
-      ctx.fillStyle = waveGrad;
-      ctx.beginPath();
-      ctx.arc(cx, cy, r, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.restore();
-
-      requestAnimationFrame(drawOrb);
-    }
-    drawOrb();
-
-    // --- 3. DIRECT AUDIO STREAM TTS (ROUTE 2 - 100% SOUND GUARANTEE) ---
-    let currentAudio = null;
-
-    function playStreamSpeech(text) {
-      if (currentAudio) {
-        currentAudio.pause();
-        currentAudio = null;
-      }
-
-      state = 'speaking';
-      statusText.innerText = text;
-      hintText.innerText = "Cyras bol raha hai...";
-
-      // Clean text for audio streaming
-      const clean = text.replace(/[*_#]/g, '').trim();
-      const audioUrl = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(clean)}&tl=hi&client=tw-ob`;
-
-      currentAudio = new Audio(audioUrl);
-      
-      currentAudio.onended = () => {
-        state = 'idle';
-        statusText.innerText = "Tap orb to talk, Boss...";
-        hintText.innerText = "Ready";
-      };
-
-      currentAudio.onerror = () => {
-        // Fallback to native synthesis if network audio stream hiccups
-        if ('speechSynthesis' in window) {
-          const utter = new SpeechSynthesisUtterance(clean);
-          utter.lang = 'hi-IN';
-          utter.onend = () => {
-            state = 'idle';
-            statusText.innerText = "Tap orb to talk, Boss...";
-            hintText.innerText = "Ready";
-          };
-          window.speechSynthesis.speak(utter);
-        } else {
-          state = 'idle';
-        }
-      };
-
-      currentAudio.play().catch(e => {
-        console.warn("Audio play prevented, retrying...", e);
-      });
-    }
-
-    // --- 4. ZERO-API AI BRAIN ---
-    async function askCyras(msg) {
-      autoLearn(msg);
-      const mem = getStorageMemory();
-      const lower = msg.toLowerCase();
-
-      // Instant Local Live Time Tool
-      if (lower.includes("time") || lower.includes("samay") || lower.includes("waqt")) {
-        const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        playStreamSpeech(`Boss, abhi theek ${timeStr} baj rahe hain!`);
-        return;
-      }
-
-      state = 'thinking';
-      statusText.innerText = "Cyras soch raha hai...";
-      hintText.innerText = "Processing...";
-
-      const systemPrompt = `You are Cyras, an energetic, loyal 15yo younger brother AI assistant.
-Always address the user as 'Boss'.
-User permanent memory: ${JSON.stringify(mem.facts)}.
-Speak in short, crisp natural Hindi/Hinglish. Max 2-3 sentences. Never give robotic answers.`;
-
-      const finalPrompt = `${systemPrompt}\nBoss said: ${msg}\nCyras:`;
-
-      try {
-        const res = await fetch(`https://text.pollinations.ai/${encodeURIComponent(finalPrompt)}`);
-        const reply = await res.text();
-        const cleanReply = reply.replace(/cyras:/gi, "").trim();
-        playStreamSpeech(cleanReply || "Haan Boss! Bilkul sun raha hoon.");
-      } catch (e) {
-        playStreamSpeech("Boss, network thoda dheema hai par main yahin hoon!");
-      }
-    }
-
-    // --- 5. ORB VOICE INTERACTION (SPEECH-TO-TEXT) ---
     let recognition = null;
-    let isListening = false;
+    let isLoopActive = false;
+    let isSpeaking = false;
 
-    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-      const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-      recognition = new SR();
+    // Speech Recognition Setup
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    if (SpeechRecognition) {
+      recognition = new SpeechRecognition();
       recognition.continuous = false;
       recognition.interimResults = false;
       recognition.lang = 'hi-IN';
 
       recognition.onstart = () => {
-        isListening = true;
-        state = 'listening';
-        statusText.innerText = "Sun raha hoon Boss, boliye...";
-        hintText.innerText = "Listening...";
+        if (!isSpeaking) {
+          orb.className = 'orb listening';
+          statusText.innerText = "Cyras listening... boliye Boss";
+        }
       };
 
-      recognition.onresult = (e) => {
-        isListening = false;
-        const transcript = e.results[0][0].transcript;
-        statusText.innerText = `"${transcript}"`;
-        askCyras(transcript);
+      recognition.onresult = async (event) => {
+        const transcript = event.results[0][0].transcript;
+        statusText.innerText = `Boss: "${transcript}"`;
+        Memory.saveChat('user', transcript);
+        await getCyrasReply(transcript);
       };
 
       recognition.onerror = (e) => {
-        isListening = false;
-        state = 'idle';
-        statusText.innerText = "Awaz saaf nahi aayi Boss, dubara tap kijiye!";
-        hintText.innerText = "Tap to Retry";
+        if (isLoopActive && !isSpeaking) {
+          setTimeout(startListening, 600);
+        }
       };
 
       recognition.onend = () => {
-        isListening = false;
-        if (state === 'listening') state = 'idle';
-      };
-    }
-
-    function toggleVoiceInteraction() {
-      // Stop current speech if already speaking
-      if (currentAudio) {
-        currentAudio.pause();
-        currentAudio = null;
-      }
-      if (window.speechSynthesis) {
-        window.speechSynthesis.cancel();
-      }
-
-      if (!recognition) {
-        alert("Microphone recognition support is unavailable in this environment.");
-        return;
-      }
-
-      if (isListening) {
-        recognition.stop();
-      } else {
-        try {
-          recognition.start();
-        } catch (err) {
-          recognition.stop();
+        if (isLoopActive && !isSpeaking) {
+          setTimeout(startListening, 500);
         }
+      };
+    } else {
+      statusText.innerText = "Speech API Not Supported on this WebView";
+    }
+
+    function startListening() {
+      if (!recognition || isSpeaking) return;
+      try {
+        recognition.start();
+      } catch (err) {
+        // Recognition already active
       }
     }
 
-    function openDrawer() {
-      document.getElementById('overlay').classList.add('active');
-      document.getElementById('menuDrawer').classList.add('open');
-    }
-    function closeDrawer() {
-      document.getElementById('overlay').classList.remove('active');
-      document.getElementById('menuDrawer').classList.remove('open');
+    // Hands-Free TTS Voice Output
+    function speakText(text) {
+      return new Promise((resolve) => {
+        if (!('speechSynthesis' in window)) {
+          resolve();
+          return;
+        }
+
+        window.speechSynthesis.cancel();
+        isSpeaking = true;
+        orb.className = 'orb speaking';
+        statusText.innerText = text;
+
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'hi-IN';
+        utterance.rate = 1.0;
+        utterance.pitch = 1.0;
+
+        utterance.onend = () => {
+          isSpeaking = false;
+          orb.className = 'orb';
+          resolve();
+        };
+
+        utterance.onerror = () => {
+          isSpeaking = false;
+          orb.className = 'orb';
+          resolve();
+        };
+
+        window.speechSynthesis.speak(utterance);
+      });
     }
 
-    function viewMemory() {
-      closeDrawer();
-      const mem = getStorageMemory();
-      alert("🧠 Cyras Permanent Memory:\n\n• " + mem.facts.join("\n• "));
-    }
+    // AI Brain with Robust Failover
+    async function getCyrasReply(prompt) {
+      orb.className = 'orb';
+      statusText.innerText = "Cyras thinking...";
 
-    function clearMemory() {
-      closeDrawer();
-      if (confirm("Boss, kya sach me saari memory clear karni hai?")) {
-        localStorage.removeItem(MEMORY_KEY);
-        alert("Memory reset ho gayi!");
+      const systemPrompt = "You are Cyras, an intelligent, loyal Jarvis-like personal AI assistant. The user is your Boss. Keep responses crisp, confident, natural, and helpful in Hinglish or Hindi. Max 1 to 2 short sentences for clean speech.";
+
+      try {
+        const res = await fetch(`https://text.pollinations.ai/${encodeURIComponent(systemPrompt + " | User: " + prompt)}?model=openai`);
+        if (!res.ok) throw new Error("Brain Server Busy");
+        const reply = await res.text();
+        await deliverResponse(reply);
+      } catch (err) {
+        // Offline / Fallback Local Brain Logic
+        let fallback = "Ji Boss, main sun raha hoon. Kuch takneeki dikkat aayi par main online hoon.";
+        const lower = prompt.toLowerCase();
+        if (lower.includes("kaun ho") || lower.includes("who are you")) {
+          fallback = "Main Cyras hoon Boss, aapka personal autonomous AI assistant.";
+        } else if (lower.includes("kaise ho")) {
+          fallback = "Main bilkul badhiya hoon Boss, command dijiye agla kya karna hai.";
+        }
+        await deliverResponse(fallback);
       }
     }
+
+    async function deliverResponse(text) {
+      Memory.saveChat('cyras', text);
+      await speakText(text);
+      if (isLoopActive) {
+        startListening();
+      }
+    }
+
+    // Main Tap Trigger: Activates Welcome & Hands-Free Duplex Loop
+    orbBtn.addEventListener('click', async () => {
+      if (!isLoopActive) {
+        isLoopActive = true;
+        await speakText("Welcome Boss! Cyras is ready.");
+        startListening();
+      } else {
+        // Tap again to pause/reset loop
+        isLoopActive = false;
+        if (recognition) recognition.stop();
+        window.speechSynthesis.cancel();
+        isSpeaking = false;
+        orb.className = 'orb';
+        statusText.innerText = "Cyras paused. Tap Orb to restart.";
+      }
+    });
   </script>
 </body>
 </html>
