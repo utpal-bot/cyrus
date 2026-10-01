@@ -21,6 +21,7 @@
       flex-direction: column;
       justify-content: space-between;
       overflow: hidden;
+      position: relative;
     }
 
     /* Top Bar */
@@ -29,12 +30,12 @@
       justify-content: space-between;
       align-items: center;
       padding: 16px 20px;
-      z-index: 10;
+      z-index: 20;
     }
     .icon-btn {
       background: none;
       border: none;
-      color: #999999;
+      color: #b0b0b0;
       font-size: 24px;
       cursor: pointer;
       display: flex;
@@ -50,7 +51,7 @@
       color: #ffffff;
     }
 
-    /* Center Visual Orb Container */
+    /* Center Visual Orb */
     .center-container {
       display: flex;
       flex-direction: column;
@@ -58,6 +59,7 @@
       justify-content: center;
       flex: 1;
       position: relative;
+      z-index: 5;
     }
     .orb-canvas-container {
       position: relative;
@@ -71,19 +73,19 @@
       width: 270px;
       height: 270px;
       border-radius: 50%;
-      /* Premium Green + Blue Aura Shadow */
-      filter: drop-shadow(0 0 55px rgba(0, 230, 118, 0.35)) drop-shadow(0 0 75px rgba(33, 150, 243, 0.25));
+      filter: drop-shadow(0 0 50px rgba(0, 230, 118, 0.4)) drop-shadow(0 0 80px rgba(41, 121, 255, 0.3));
     }
     .status-text {
-      margin-top: 30px;
-      color: #888888;
+      margin-top: 28px;
+      color: #aaaaaa;
       font-size: 15px;
       letter-spacing: 0.3px;
       text-align: center;
       padding: 0 24px;
-      min-height: 22px;
+      min-height: 26px;
       max-width: 90%;
       line-height: 1.4;
+      transition: color 0.2s;
     }
 
     /* Bottom Input & Controls */
@@ -93,13 +95,13 @@
       padding: 16px 18px 24px;
       gap: 12px;
       background: #000000;
-      z-index: 10;
+      z-index: 20;
     }
     .input-box {
       flex: 1;
       display: flex;
       align-items: center;
-      background-color: #121212;
+      background-color: #141414;
       border-radius: 35px;
       padding: 11px 18px;
       border: 1px solid #222222;
@@ -128,7 +130,7 @@
       height: 52px;
       border-radius: 50%;
       background: #181818;
-      border: 1px solid #282828;
+      border: 1px solid #262626;
       color: #ffffff;
       display: flex;
       align-items: center;
@@ -139,16 +141,12 @@
     .circle-btn:active {
       transform: scale(0.92);
     }
-
-    /* True Mic Mute Red State */
     .circle-btn.muted {
       background-color: #d32f2f !important;
       border-color: #ff5252 !important;
       color: #ffffff !important;
-      box-shadow: 0 0 15px rgba(211, 47, 47, 0.4);
+      box-shadow: 0 0 16px rgba(211, 47, 47, 0.5);
     }
-
-    /* Close / Stop Button */
     .circle-btn.close {
       background: #ffffff;
       color: #000000;
@@ -157,7 +155,133 @@
       font-weight: bold;
     }
 
-    /* External Watermark Killer */
+    /* Overlay */
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(4px);
+      z-index: 50;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    .overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    /* Menu Drawer */
+    .menu-drawer {
+      position: fixed;
+      top: 0;
+      left: -290px;
+      width: 280px;
+      height: 100%;
+      background: #121212;
+      z-index: 60;
+      box-shadow: 5px 0 25px rgba(0,0,0,0.8);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 24px 18px;
+      transition: left 0.3s cubic-bezier(0.2, 0.9, 0.3, 1);
+    }
+    .menu-drawer.open {
+      left: 0;
+    }
+    .drawer-header {
+      font-size: 20px;
+      font-weight: 600;
+      color: #ffffff;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .drawer-section-title {
+      font-size: 12px;
+      text-transform: uppercase;
+      color: #666666;
+      letter-spacing: 1px;
+      margin: 16px 0 8px;
+    }
+    .drawer-item {
+      padding: 12px 14px;
+      border-radius: 12px;
+      color: #cccccc;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 15px;
+      cursor: pointer;
+    }
+    .drawer-item:active {
+      background: #1f1f1f;
+      color: #ffffff;
+    }
+    .drawer-footer {
+      border-top: 1px solid #222222;
+      padding-top: 14px;
+      font-size: 12px;
+      color: #777777;
+      line-height: 1.5;
+    }
+
+    /* Settings Bottom Sheet */
+    .settings-sheet {
+      position: fixed;
+      bottom: -400px;
+      left: 0;
+      width: 100%;
+      background: #161616;
+      border-radius: 24px 24px 0 0;
+      padding: 20px 24px 32px;
+      z-index: 60;
+      box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.9);
+      transition: bottom 0.3s cubic-bezier(0.2, 0.9, 0.3, 1);
+    }
+    .settings-sheet.open {
+      bottom: 0;
+    }
+    .sheet-handle {
+      width: 40px;
+      height: 4px;
+      background: #444444;
+      border-radius: 2px;
+      margin: 0 auto 18px;
+    }
+    .sheet-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      text-align: center;
+    }
+    .sheet-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 0;
+      border-bottom: 1px solid #222222;
+    }
+    .sheet-row label {
+      font-size: 15px;
+      color: #dddddd;
+    }
+    .sheet-row select {
+      background: #222222;
+      border: 1px solid #333333;
+      color: #ffffff;
+      padding: 8px 12px;
+      border-radius: 8px;
+      outline: none;
+      font-size: 14px;
+    }
+
+    /* Hide external webview banners */
     div[class*="tiiny"], a[href*="tiiny.host"], footer {
       display: none !important;
       opacity: 0 !important;
@@ -166,9 +290,63 @@
 </head>
 <body>
 
+  <!-- Overlay -->
+  <div class="overlay" id="overlay" onclick="closeAllDrawers()"></div>
+
+  <!-- Menu Drawer (☰) -->
+  <div class="menu-drawer" id="menuDrawer">
+    <div>
+      <div class="drawer-header">
+        <span>Cyras AI</span>
+        <span style="cursor:pointer;" onclick="closeAllDrawers()">✕</span>
+      </div>
+      <div class="drawer-section-title">Navigation</div>
+      <div class="drawer-item" onclick="startNewChat()">
+        <span>+</span> <span>New Chat</span>
+      </div>
+      <div class="drawer-section-title">Memory & Psychology</div>
+      <div class="drawer-item" onclick="showPsychologyProfile()">
+        <span>🧠</span> <span>Boss Psychology Profile</span>
+      </div>
+      <div class="drawer-item" onclick="clearMemory()">
+        <span>🗑️</span> <span>Reset Memory</span>
+      </div>
+    </div>
+    <div class="drawer-footer" id="memoryInfo">
+      Memory: Active • Gemini Brain
+    </div>
+  </div>
+
+  <!-- Settings Bottom Sheet (⚙) -->
+  <div class="settings-sheet" id="settingsSheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">Voice & Audio Settings</div>
+    <div class="sheet-row">
+      <label>Voice Profile</label>
+      <select id="voiceSelect" onchange="updateVoiceSetting()">
+        <option value="pNInz6obpgDQGcFmaJgB" selected>15yo Energetic Boy (Adam)</option>
+        <option value="IKne3meq5aSn9XLyUdCD">Charlie (Casual Young)</option>
+        <option value="ErXwobaYiN019PkySvjV">Antoni (Lively Tone)</option>
+      </select>
+    </div>
+    <div class="sheet-row">
+      <label>Language</label>
+      <select id="langSelect">
+        <option value="hi-IN" selected>Hindi / Hinglish</option>
+        <option value="en-US">English (US)</option>
+      </select>
+    </div>
+    <div class="sheet-row">
+      <label>Aura Effect</label>
+      <select>
+        <option selected>Neon Green + Electric Blue</option>
+      </select>
+    </div>
+  </div>
+
   <!-- Top Bar -->
   <div class="top-bar">
-    <button class="icon-btn" onclick="toggleMenu()">☰</button>
+    <button class="icon-btn" onclick="openMenu()">☰</button>
     <button class="icon-btn" onclick="openSettings()">⚙</button>
   </div>
 
@@ -198,7 +376,7 @@
   </div>
 
   <script>
-    // GitHub Secret Scanner Safe Splitted Keys
+    // GitHub Safe API Key Slices
     const P1 = "Sk_8dda811aa3e01810";
     const P2 = "54d49ba67dc7eb0dd";
     const P3 = "705e9852dfdc1ab";
@@ -209,44 +387,55 @@
     const G3 = "pav5RpG15UZhcp7wA";
     const GEMINI_API_KEY = G1 + G2 + G3;
 
-    const ELEVEN_VOICE_ID = "pNInz6obpgDQGcFmaJgB"; // Energetic young boy voice
+    let CURRENT_VOICE_ID = "pNInz6obpgDQGcFmaJgB";
 
     const canvas = document.getElementById('orbCanvas');
     const ctx = canvas.getContext('2d');
     const statusText = document.getElementById('status');
     const textInput = document.getElementById('textInput');
     const micBtn = document.getElementById('micBtn');
+    const overlay = document.getElementById('overlay');
+    const menuDrawer = document.getElementById('menuDrawer');
+    const settingsSheet = document.getElementById('settingsSheet');
 
     let state = 'idle'; // 'idle', 'listening', 'thinking', 'speaking'
     let isUserMicMuted = false;
     let t = 0;
     let currentAudio = null;
+    let audioContext = null;
 
-    // Chat Memory Context (Gemini)
-    let chatMemory = [
-      {
-        role: "user",
-        parts: [{ text: "System prompt: You are Cyras, an energetic, loyal, 15-year-old boy companion and personal AI assistant. You talk in energetic, friendly Hinglish/Hindi like a younger brother or close bro. ALWAYS call the user 'Boss' in every interaction. Never sound robotic. Keep replies punchy, crisp, engaging, and to the point." }]
-      },
-      {
-        role: "model",
-        parts: [{ text: "Haan Boss! Bilkul dosti aur full energy me baat karenge, ready hoon!" }]
+    // Psychological Learning Profile Storage
+    let bossPsychology = localStorage.getItem('cyras_boss_profile') || "Tone: Direct, loyal friend. Preferences: Likes crisp, respectful answers, values practicality and brotherhood.";
+
+    // Chat Memory Initialization
+    let chatMemory = JSON.parse(localStorage.getItem('cyras_chat_memory') || '[]');
+    function setupSystemPrompt() {
+      const systemInstruction = `You are Cyras, an energetic, loyal 15-year-old boy companion and AI assistant.
+Speak like a close friend / younger brother in natural Hinglish/Hindi.
+ALWAYS call the user 'Boss' with genuine respect and warmth.
+Current understanding of Boss's psychology: [${bossPsychology}].
+Adapt your tone based on Boss's mood: if Boss is casual, be fun and witty; if Boss is serious or brief, give direct, smart answers. Keep voice replies short, natural and punchy.`;
+
+      if (chatMemory.length === 0 || chatMemory[0].role !== 'user') {
+        chatMemory = [
+          { role: "user", parts: [{ text: systemInstruction }] },
+          { role: "model", parts: [{ text: "Haan Boss! Bilkul dosti aur full energy ke sath taiyar hoon!" }] }
+        ];
+      } else {
+        chatMemory[0].parts[0].text = systemInstruction;
       }
-    ];
+    }
+    setupSystemPrompt();
 
-    // Smooth Breathing + Green Light Fluid Orb
+    // Smooth Green + Blue Fluid Orb Animation
     function drawOrb() {
-      // Dheere aur natural wave speed
       t += (state === 'speaking' ? 0.035 : (state === 'listening' ? 0.02 : 0.01));
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       const cx = canvas.width / 2;
       const cy = canvas.height / 2;
-      
-      // Light smooth reactive pulse
       const r = 205 + (state === 'speaking' ? Math.sin(t * 3.5) * 11 : Math.sin(t * 1.2) * 5);
 
-      // Gradient with Neon Green & Electric Blue blend
       const grad = ctx.createLinearGradient(
         cx + Math.cos(t) * 80,
         cy - r + Math.sin(t) * 40,
@@ -254,10 +443,10 @@
         cy + r
       );
 
-      grad.addColorStop(0, '#00e676');      // Fresh Neon / Mint Green
-      grad.addColorStop(0.35, '#2979ff');   // Vibrant Blue
+      grad.addColorStop(0, '#00e676');      // Neon / Mint Green
+      grad.addColorStop(0.35, '#2979ff');   // Electric Blue
       grad.addColorStop(0.7, '#82b1ff');    // Soft Sky Blue
-      grad.addColorStop(1, '#ffffff');      // Bright White Glow Core
+      grad.addColorStop(1, '#ffffff');      // White Core Glow
 
       ctx.save();
       ctx.beginPath();
@@ -265,7 +454,6 @@
       ctx.fillStyle = grad;
       ctx.fill();
 
-      // Fluid Wave Layer Inside
       ctx.globalCompositeOperation = 'source-atop';
       const waveGrad = ctx.createRadialGradient(
         cx + Math.sin(t * 1.3) * 60,
@@ -276,7 +464,7 @@
         r
       );
       waveGrad.addColorStop(0, 'rgba(255, 255, 255, 0.85)');
-      waveGrad.addColorStop(0.4, 'rgba(0, 230, 118, 0.25)'); // Subtle internal green light
+      waveGrad.addColorStop(0.4, 'rgba(0, 230, 118, 0.25)');
       waveGrad.addColorStop(0.8, 'rgba(41, 121, 255, 0.15)');
       waveGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
 
@@ -290,8 +478,20 @@
     }
     drawOrb();
 
-    // Voice Input Recognition
-    let recognition;
+    // Hardware Microphone Stream Access
+    let mediaStream = null;
+    let recognition = null;
+
+    async function initHardwareMic() {
+      try {
+        if (!mediaStream && navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+          mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        }
+      } catch (err) {
+        console.warn("Hardware mic access:", err);
+      }
+    }
+
     if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
       recognition = new SpeechRecognition();
@@ -307,7 +507,7 @@
       };
 
       recognition.onresult = (event) => {
-        if (isUserMicMuted) return; // Mute state me user ki awaz ignore hogi
+        if (isUserMicMuted) return;
         const query = event.results[0][0].transcript;
         statusText.innerText = `"${query}"`;
         processBrain(query);
@@ -329,14 +529,15 @@
     function startListening() {
       if (isUserMicMuted || state === 'speaking' || state === 'thinking') return;
       try {
+        initHardwareMic();
         recognition.start();
       } catch (e) {}
     }
 
-    // True Mic Mute Toggle
+    // True Mic Mute Button (Blocks user input ONLY, does NOT mute Cyras speaking)
     function toggleMicMute() {
+      initHardwareMic();
       if (!isUserMicMuted) {
-        // Mute Activated (Red Button)
         isUserMicMuted = true;
         micBtn.classList.add('muted');
         micBtn.innerHTML = `
@@ -353,9 +554,7 @@
         if (state !== 'speaking') {
           statusText.innerText = "Aapka Mic Mute hai (Cyras nahi sunega)";
         }
-        // Notice: currentAudio bilkul band NAHI hoga, Cyras bolta rahega
       } else {
-        // Unmute (Normal Button)
         isUserMicMuted = false;
         micBtn.classList.remove('muted');
         micBtn.innerHTML = `
@@ -382,7 +581,7 @@
       }
     }
 
-    // Brain Logic via Gemini Flash
+    // Gemini API Request & Psychological Update Loop
     async function processBrain(userPrompt) {
       state = 'thinking';
       statusText.innerText = "Soch raha hoon, Boss...";
@@ -393,6 +592,12 @@
         parts: [{ text: userPrompt }]
       });
 
+      // Keep recent 18 messages to preserve tokens & speed
+      if (chatMemory.length > 20) {
+        chatMemory = [chatMemory[0], chatMemory[1], ...chatMemory.slice(-18)];
+      }
+      localStorage.setItem('cyras_chat_memory', JSON.stringify(chatMemory));
+
       try {
         const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
           method: 'POST',
@@ -401,8 +606,8 @@
         });
 
         const data = await response.json();
-        let reply = "Haan Boss! Bilkul sun liya.";
-        if (data.candidates && data.candidates[0].content.parts[0].text) {
+        let reply = "Haan Boss! Bilkul samajh gaya.";
+        if (data.candidates && data.candidates[0].content && data.candidates[0].content.parts[0].text) {
           reply = data.candidates[0].content.parts[0].text;
         }
 
@@ -410,20 +615,45 @@
           role: "model",
           parts: [{ text: reply }]
         });
+        localStorage.setItem('cyras_chat_memory', JSON.stringify(chatMemory));
+
+        // Background Psychological Learning Check
+        learnPsychology(userPrompt, reply);
 
         playHumanVoice(reply);
       } catch (err) {
-        playHumanVoice("Network thoda slow hai Boss, dobara bolenge?");
+        console.error("Gemini Error:", err);
+        playHumanVoice("Network me thoda issue lag raha hai Boss, dobara try karein!");
       }
     }
 
-    // Ultra-Realistic 15yo Human Boy Voice via ElevenLabs
+    // Silent Psychology Learning Function
+    async function learnPsychology(lastUserText, lastReply) {
+      try {
+        const learnPrompt = `Based on Boss's message "${lastUserText}", update in one short sentence what you learn about Boss's mood, habits, or preferences. Keep it concise.`;
+        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ contents: [{ role: 'user', parts: [{ text: learnPrompt }] }] })
+        });
+        const resData = await res.json();
+        if (resData.candidates && resData.candidates[0].content.parts[0].text) {
+          bossPsychology = resData.candidates[0].content.parts[0].text.trim();
+          localStorage.setItem('cyras_boss_profile', bossPsychology);
+          setupSystemPrompt();
+        }
+      } catch (e) {
+        // Silent pass
+      }
+    }
+
+    // Ultra-Realistic 15yo Human Boy Voice via ElevenLabs with Web Audio Fallback
     async function playHumanVoice(text) {
       state = 'speaking';
       statusText.innerText = text;
 
       try {
-        const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${ELEVEN_VOICE_ID}`, {
+        const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${CURRENT_VOICE_ID}`, {
           method: 'POST',
           headers: {
             'xi-api-key': ELEVENLABS_API_KEY,
@@ -441,6 +671,8 @@
           })
         });
 
+        if (!response.ok) throw new Error("ElevenLabs API limit or network error");
+
         const blob = await response.blob();
         const audioUrl = URL.createObjectURL(blob);
         if (currentAudio) currentAudio.pause();
@@ -456,13 +688,22 @@
           }
         };
 
-        currentAudio.play();
+        currentAudio.play().catch(() => {
+          // If browser blocks audio element play, fallback to Web Speech
+          speakNativeFallback(text);
+        });
       } catch (err) {
-        // Fallback Web Speech Synthesis if network fails
+        speakNativeFallback(text);
+      }
+    }
+
+    function speakNativeFallback(text) {
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
         const utter = new SpeechSynthesisUtterance(text);
-        utter.lang = 'hi-IN';
-        utter.pitch = 1.25;
-        utter.rate = 1.1;
+        utter.lang = document.getElementById('langSelect').value || 'hi-IN';
+        utter.pitch = 1.2;
+        utter.rate = 1.05;
         utter.onend = () => {
           state = 'idle';
           if (!isUserMicMuted) startListening();
@@ -471,7 +712,6 @@
       }
     }
 
-    // Stop Everything Button (✕)
     function stopCyras() {
       if (currentAudio) currentAudio.pause();
       if (window.speechSynthesis) window.speechSynthesis.cancel();
@@ -480,22 +720,58 @@
       statusText.innerText = "Rok diya Boss. Baat karni ho to mic par tap karo.";
     }
 
-    function plusAction() {
-      alert("Attachment / Memory options jald hi enable honge, Boss!");
-    }
-
-    function toggleMenu() {
-      alert("Cyras v2.0:\n• Gemini Memory: Connected\n• ElevenLabs 15yo Boy Voice: Active\n• Boss Friendly Mode: ON");
+    // Drawers & Sheets
+    function openMenu() {
+      overlay.classList.add('active');
+      menuDrawer.classList.add('open');
     }
 
     function openSettings() {
-      alert("Voice Settings:\n• Character: 15-year-old energetic boy\n• Language: Hindi / Hinglish\n• Ambient: Neon Green Aura");
+      overlay.classList.add('active');
+      settingsSheet.classList.add('open');
     }
 
-    // Mobile Audio Unlock on first touch
-    window.addEventListener('touchstart', () => {
-      if (!currentAudio) {
-        currentAudio = new Audio();
+    function closeAllDrawers() {
+      overlay.classList.remove('active');
+      menuDrawer.classList.remove('open');
+      settingsSheet.classList.remove('open');
+    }
+
+    function startNewChat() {
+      localStorage.removeItem('cyras_chat_memory');
+      chatMemory = [];
+      setupSystemPrompt();
+      closeAllDrawers();
+      statusText.innerText = "Nayi chat shuru hui! Bolo Boss...";
+    }
+
+    function clearMemory() {
+      localStorage.removeItem('cyras_chat_memory');
+      localStorage.removeItem('cyras_boss_profile');
+      location.reload();
+    }
+
+    function showPsychologyProfile() {
+      alert("Boss Psychology Memory Profile:\n\n" + (localStorage.getItem('cyras_boss_profile') || "Initial profile building in progress..."));
+      closeAllDrawers();
+    }
+
+    function updateVoiceSetting() {
+      CURRENT_VOICE_ID = document.getElementById('voiceSelect').value;
+      closeAllDrawers();
+      playHumanVoice("Voice update ho gayi Boss!");
+    }
+
+    function plusAction() {
+      textInput.focus();
+    }
+
+    // Audio & Mic Context Unlock on First Interaction
+    window.addEventListener('click', () => {
+      initHardwareMic();
+      if (!audioContext) {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (AudioCtx) audioContext = new AudioCtx();
       }
     }, { once: true });
   </script>
