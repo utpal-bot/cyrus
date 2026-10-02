@@ -1,256 +1,557 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Cyras AI</title>
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      user-select: none;
+<meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+
+<title>Cyrus Voice</title>
+
+<style>
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+    -webkit-tap-highlight-color:transparent;
+}
+
+html,body{
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    background:#000;
+    font-family:-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+button{
+    border:0;
+    outline:0;
+    cursor:pointer;
+}
+
+/* =================================
+   COMMON
+================================= */
+.screen{
+    position:absolute;
+    inset:0;
+    background:#000;
+    color:white;
+}
+
+/* =================================
+   VOICE SCREEN
+================================= */
+#voiceScreen{
+    display:block;
+}
+
+/* Top buttons (Adjusted & Refined Size) */
+.top-btn{
+    position:absolute;
+    top:38px;
+    width:48px;
+    height:48px;
+    border-radius:50%;
+    background:#1c1c1e;
+    border:1px solid #2c2c2e;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    z-index:10;
+    transition:transform 0.15s ease;
+}
+
+.top-btn:active{
+    transform:scale(0.92);
+}
+
+.menu-btn{
+    left:20px;
+}
+
+.control-btn{
+    right:20px;
+}
+
+/* hamburger */
+.hamburger{
+    width:20px;
+    height:15px;
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+}
+
+.hamburger span{
+    height:2px;
+    width:100%;
+    background:#eee;
+    border-radius:3px;
+}
+
+/* sliders */
+.sliders{
+    width:22px;
+    height:22px;
+    position:relative;
+}
+
+.slider-line{
+    position:absolute;
+    width:100%;
+    height:2px;
+    background:#eee;
+    border-radius:3px;
+}
+
+.slider-line.a{ top:5px; }
+.slider-line.b{ top:15px; }
+
+.knob{
+    position:absolute;
+    width:7px;
+    height:7px;
+    border:2px solid #eee;
+    background:#1c1c1e;
+    border-radius:50%;
+}
+
+.knob.a{ left:13px; top:2px; }
+.knob.b{ left:3px; top:12px; }
+
+/* Orb (Same Gradient, Voice Tone Reacting) */
+.orb{
+    position:absolute;
+    left:50%;
+    top:50%;
+    width:min(340px, 68vw);
+    aspect-ratio:1;
+    transform:translate(-50%,-50%) scale(1);
+    border-radius:50%;
+    background:radial-gradient(
+        circle at 50% 42%,
+        #ffffff 0%,
+        #f5f6ff 27%,
+        #e6e8ff 55%,
+        #cbd1ff 80%,
+        #aab5ff 100%
+    );
+    box-shadow:0 0 50px rgba(170, 181, 255, 0.35);
+    transition:transform 0.08s ease-out, box-shadow 0.1s ease-out;
+    animation:ambientBreath 4.5s ease-in-out infinite;
+}
+
+@keyframes ambientBreath{
+    0%,100%{
+        transform:translate(-50%,-50%) scale(0.97);
     }
-    body {
-      background-color: #000000;
-      color: #ffffff;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
+    50%{
+        transform:translate(-50%,-50%) scale(1.02);
     }
-    .header {
-      position: absolute;
-      top: 30px;
-      font-size: 14px;
-      letter-spacing: 3px;
-      color: #555555;
-      text-transform: uppercase;
+}
+
+/* Voice Speaking Tremor Wave */
+.orb.speaking{
+    animation:voiceTremor 0.6s ease-in-out infinite alternate !important;
+}
+
+@keyframes voiceTremor{
+    0%{
+        transform:translate(-50%,-50%) scale(0.98) rotate(-0.5deg);
     }
-    .orb-container {
-      position: relative;
-      width: 250px;
-      height: 250px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
+    50%{
+        transform:translate(-50%,-50%) scale(1.05) rotate(0.6deg);
     }
-    .orb {
-      width: 180px;
-      height: 180px;
-      border-radius: 50%;
-      background: radial-gradient(circle at 35% 35%, #00f2fe, #4facfe, #000814);
-      box-shadow: 0 0 60px rgba(0, 242, 254, 0.4), inset 0 0 40px rgba(255, 255, 255, 0.6);
-      transition: transform 0.4s ease, box-shadow 0.4s ease, background 0.4s ease;
-      animation: float 4s ease-in-out infinite;
+    100%{
+        transform:translate(-50%,-50%) scale(1.01) rotate(-0.3deg);
     }
-    @keyframes float {
-      0%, 100% { transform: translateY(0px) scale(1); }
-      50% { transform: translateY(-10px) scale(1.02); }
-    }
-    .orb.listening {
-      background: radial-gradient(circle at 35% 35%, #00ff87, #60efff, #001f11);
-      box-shadow: 0 0 80px rgba(0, 255, 135, 0.7), inset 0 0 40px rgba(255, 255, 255, 0.8);
-      animation: pulse-listen 1.5s infinite;
-    }
-    @keyframes pulse-listen {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.12); }
-    }
-    .orb.speaking {
-      background: radial-gradient(circle at 35% 35%, #ff0844, #ffb199, #2b0008);
-      box-shadow: 0 0 80px rgba(255, 8, 68, 0.7), inset 0 0 40px rgba(255, 255, 255, 0.8);
-      animation: pulse-speak 0.8s infinite alternate;
-    }
-    @keyframes pulse-speak {
-      0% { transform: scale(0.98); }
-      100% { transform: scale(1.15); }
-    }
-    .status-text {
-      margin-top: 50px;
-      font-size: 16px;
-      letter-spacing: 1px;
-      color: #888888;
-      text-align: center;
-      max-width: 80%;
-      height: 48px;
-      line-height: 24px;
-    }
-    .memory-badge {
-      position: absolute;
-      bottom: 25px;
-      font-size: 11px;
-      letter-spacing: 1.5px;
-      color: #333333;
-      text-transform: uppercase;
-    }
-  </style>
+}
+
+/* Mic (Adjusted Size) */
+.voice-mic{
+    position:absolute;
+    left:50%;
+    bottom:34px;
+    transform:translateX(-50%);
+    width:62px;
+    height:62px;
+    border-radius:50%;
+    background:#1c1c1e;
+    border:1px solid #2c2c2e;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    transition:all 0.2s ease;
+}
+
+.voice-mic:active{
+    transform:translateX(-50%) scale(0.92);
+}
+
+.voice-mic.off{
+    background:#ff3b30;
+    border-color:#ff3b30;
+}
+
+.mic-icon{
+    width:16px;
+    height:25px;
+    border:2.5px solid white;
+    border-radius:10px;
+    position:relative;
+}
+
+.mic-icon:after{
+    content:"";
+    position:absolute;
+    width:23px;
+    height:13px;
+    left:50%;
+    bottom:-10px;
+    transform:translateX(-50%);
+    border:2.5px solid white;
+    border-top:0;
+    border-radius:0 0 16px 16px;
+}
+
+/* =================================
+   SIDE MENU
+================================= */
+.overlay{
+    position:absolute;
+    inset:0;
+    background:rgba(0,0,0,.65);
+    backdrop-filter:blur(6px);
+    display:none;
+    z-index:30;
+}
+
+.overlay.show{
+    display:block;
+}
+
+.side-menu{
+    position:absolute;
+    left:0;
+    top:0;
+    bottom:0;
+    width:75%;
+    max-width:380px;
+    background:#141416;
+    border-right:1px solid #222;
+    transform:translateX(-100%);
+    transition:transform .28s cubic-bezier(0.1, 0.9, 0.2, 1);
+    z-index:40;
+    padding:45px 22px;
+}
+
+.side-menu.show{
+    transform:translateX(0);
+}
+
+.cyrus-title{
+    font-size:28px;
+    font-weight:bold;
+    letter-spacing:1px;
+    margin:0 0 40px 10px;
+}
+
+.menu-item{
+    display:block;
+    width:100%;
+    padding:14px 16px;
+    margin-bottom:8px;
+    background:transparent;
+    color:#e5e5ea;
+    text-align:left;
+    font-size:17px;
+    font-weight:500;
+    border-radius:10px;
+    transition:background 0.15s ease;
+}
+
+.menu-item:active{
+    background:#242426;
+}
+
+/* =================================
+   CONVERSATION SCREEN
+================================= */
+#conversationScreen{
+    display:none;
+    flex-direction:column;
+}
+
+.chat-header{
+    height:64px;
+    flex-shrink:0;
+    display:flex;
+    align-items:center;
+    padding:0 18px;
+    background:#121214;
+    border-bottom:1px solid #222;
+    font-size:18px;
+    font-weight:600;
+}
+
+.back-button{
+    font-size:30px;
+    margin-right:14px;
+    width:36px;
+    background:transparent;
+    color:white;
+    display:flex;
+    align-items:center;
+}
+
+.messages{
+    flex:1;
+    overflow-y:auto;
+    padding:20px 16px;
+}
+
+.message{
+    max-width:82%;
+    padding:12px 15px;
+    margin-bottom:12px;
+    border-radius:16px;
+    font-size:15px;
+    line-height:1.45;
+}
+
+.user-message{
+    margin-left:auto;
+    background:#2c2c2e;
+}
+
+.cyrus-message{
+    background:#161618;
+    border:1px solid #242426;
+}
+
+.chat-bottom{
+    padding:10px 14px 22px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    background:#000;
+}
+
+.text-box{
+    flex:1;
+    min-width:0;
+    min-height:48px;
+    border-radius:24px;
+    background:#1c1c1e;
+    color:white;
+    padding:12px 18px;
+    display:flex;
+    align-items:center;
+    font-size:15px;
+    outline:none;
+}
+
+.send-button{
+    width:48px;
+    height:48px;
+    border-radius:50%;
+    background:#1c1c1e;
+    color:white;
+    font-size:18px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+
+.send-button:active{
+    background:#2c2c2e;
+}
+
+.chat-voice-button{
+    width:48px;
+    height:48px;
+    flex-shrink:0;
+    border-radius:50%;
+    background:#283fbe;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+
+.chat-mic{
+    width:13px;
+    height:20px;
+    border:2.5px solid white;
+    border-radius:8px;
+    position:relative;
+}
+
+.chat-mic:after{
+    content:"";
+    position:absolute;
+    left:50%;
+    bottom:-8px;
+    transform:translateX(-50%);
+    width:18px;
+    height:10px;
+    border:2.5px solid white;
+    border-top:0;
+    border-radius:0 0 12px 12px;
+}
+</style>
 </head>
+
 <body>
 
-  <div class="header">Cyras Sovereign Core</div>
+<!-- VOICE SCREEN -->
+<div class="screen" id="voiceScreen">
+    <button class="top-btn menu-btn" id="openMenu">
+        <div class="hamburger">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </button>
 
-  <div class="orb-container" id="orbBtn">
-    <div class="orb" id="orb"></div>
-  </div>
+    <button class="top-btn control-btn">
+        <div class="sliders">
+            <div class="slider-line a"></div>
+            <div class="slider-line b"></div>
+            <div class="knob a"></div>
+            <div class="knob b"></div>
+        </div>
+    </button>
 
-  <div class="status-text" id="status">Tap Orb to Activate Cyras</div>
-  <div class="memory-badge" id="memoryStatus">Persistent Memory Online</div>
+    <!-- CLEAN ORB (Color fix, subtle movement) -->
+    <div class="orb" id="cyrusOrb"></div>
 
-  <script>
-    const orb = document.getElementById('orb');
-    const orbBtn = document.getElementById('orbBtn');
-    const statusText = document.getElementById('status');
+    <button class="voice-mic" id="voiceMic">
+        <div class="mic-icon"></div>
+    </button>
+</div>
 
-    // Local Sovereign Memory Engine
-    const Memory = {
-      getHistory: () => JSON.parse(localStorage.getItem('cyras_chat') || '[]'),
-      saveChat: (role, text) => {
-        const h = Memory.getHistory();
-        h.push({ role, text, time: Date.now() });
-        if (h.length > 12) h.shift();
-        localStorage.setItem('cyras_chat', JSON.stringify(h));
-      }
-    };
+<!-- DARK OVERLAY -->
+<div class="overlay" id="overlay"></div>
 
-    let recognition = null;
-    let isLoopActive = false;
-    let isSpeaking = false;
+<!-- SIDE MENU -->
+<div class="side-menu" id="sideMenu">
+    <div class="cyrus-title">CYRUS</div>
+    <button class="menu-item">＋ New Chat</button>
+    <button class="menu-item" id="conversationButton">💬 Conversations</button>
+    <button class="menu-item">⭐ Saved</button>
+    <button class="menu-item">⚙️ Settings</button>
+    <button class="menu-item">ℹ️ About Cyrus</button>
+</div>
 
-    // Speech Recognition Setup
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+<!-- CONVERSATION SCREEN -->
+<div class="screen" id="conversationScreen">
+    <div class="chat-header">
+        <button class="back-button" id="chatBack">‹</button>
+        <span>Conversations</span>
+    </div>
 
-    if (SpeechRecognition) {
-      recognition = new SpeechRecognition();
-      recognition.continuous = false;
-      recognition.interimResults = false;
-      recognition.lang = 'hi-IN';
+    <div class="messages" id="messages">
+        <div class="message cyrus-message">
+            Hello! 👋<br>
+            Main Cyrus hoon. Aap mujhse text ya voice mein baat kar sakte hain.
+        </div>
+    </div>
 
-      recognition.onstart = () => {
-        if (!isSpeaking) {
-          orb.className = 'orb listening';
-          statusText.innerText = "Cyras listening... boliye Boss";
-        }
-      };
+    <div class="chat-bottom">
+        <div class="text-box" contenteditable="true" id="textInput">Type a message...</div>
+        <button class="send-button" id="sendButton">➤</button>
+        <button class="chat-voice-button" id="chatVoiceButton">
+            <div class="chat-mic"></div>
+        </button>
+    </div>
+</div>
 
-      recognition.onresult = async (event) => {
-        const transcript = event.results[0][0].transcript;
-        statusText.innerText = `Boss: "${transcript}"`;
-        Memory.saveChat('user', transcript);
-        await getCyrasReply(transcript);
-      };
+<script>
+const voiceScreen = document.getElementById("voiceScreen");
+const conversationScreen = document.getElementById("conversationScreen");
+const openMenu = document.getElementById("openMenu");
+const sideMenu = document.getElementById("sideMenu");
+const overlay = document.getElementById("overlay");
+const conversationButton = document.getElementById("conversationButton");
+const chatBack = document.getElementById("chatBack");
+const chatVoiceButton = document.getElementById("chatVoiceButton");
+const voiceMic = document.getElementById("voiceMic");
+const sendButton = document.getElementById("sendButton");
+const textInput = document.getElementById("textInput");
+const messages = document.getElementById("messages");
+const cyrusOrb = document.getElementById("cyrusOrb");
 
-      recognition.onerror = (e) => {
-        if (isLoopActive && !isSpeaking) {
-          setTimeout(startListening, 600);
-        }
-      };
+// Menu
+openMenu.addEventListener("click", () => {
+    sideMenu.classList.add("show");
+    overlay.classList.add("show");
+});
 
-      recognition.onend = () => {
-        if (isLoopActive && !isSpeaking) {
-          setTimeout(startListening, 500);
-        }
-      };
-    } else {
-      statusText.innerText = "Speech API Not Supported on this WebView";
-    }
+overlay.addEventListener("click", () => {
+    sideMenu.classList.remove("show");
+    overlay.classList.remove("show");
+});
 
-    function startListening() {
-      if (!recognition || isSpeaking) return;
-      try {
-        recognition.start();
-      } catch (err) {
-        // Recognition already active
-      }
-    }
+conversationButton.addEventListener("click", () => {
+    sideMenu.classList.remove("show");
+    overlay.classList.remove("show");
+    voiceScreen.style.display = "none";
+    conversationScreen.style.display = "flex";
+});
 
-    // Hands-Free TTS Voice Output
-    function speakText(text) {
-      return new Promise((resolve) => {
-        if (!('speechSynthesis' in window)) {
-          resolve();
-          return;
-        }
+chatBack.addEventListener("click", () => {
+    conversationScreen.style.display = "none";
+    voiceScreen.style.display = "block";
+});
 
-        window.speechSynthesis.cancel();
+chatVoiceButton.addEventListener("click", () => {
+    conversationScreen.style.display = "none";
+    voiceScreen.style.display = "block";
+});
+
+// Single Tap to activate voice loop simulation
+let isSpeaking = false;
+cyrusOrb.addEventListener("click", () => {
+    if(!isSpeaking){
         isSpeaking = true;
-        orb.className = 'orb speaking';
-        statusText.innerText = text;
+        cyrusOrb.classList.add("speaking");
 
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = 'hi-IN';
-        utterance.rate = 1.0;
-        utterance.pitch = 1.0;
-
-        utterance.onend = () => {
-          isSpeaking = false;
-          orb.className = 'orb';
-          resolve();
-        };
-
-        utterance.onerror = () => {
-          isSpeaking = false;
-          orb.className = 'orb';
-          resolve();
-        };
-
-        window.speechSynthesis.speak(utterance);
-      });
+        // Bolte waqt realistic voice vibration duration
+        setTimeout(() => {
+            cyrusOrb.classList.remove("speaking");
+            isSpeaking = false;
+        }, 3600);
     }
+});
 
-    // AI Brain with Robust Failover
-    async function getCyrasReply(prompt) {
-      orb.className = 'orb';
-      statusText.innerText = "Cyras thinking...";
+// Mic toggle
+let micOff = false;
+voiceMic.addEventListener("click", () => {
+    micOff = !micOff;
+    voiceMic.classList.toggle("off", micOff);
+});
 
-      const systemPrompt = "You are Cyras, an intelligent, loyal Jarvis-like personal AI assistant. The user is your Boss. Keep responses crisp, confident, natural, and helpful in Hinglish or Hindi. Max 1 to 2 short sentences for clean speech.";
+// Text Send
+sendButton.addEventListener("click", () => {
+    const text = textInput.innerText.trim();
+    if(text === "" || text === "Type a message...") return;
 
-      try {
-        const res = await fetch(`https://text.pollinations.ai/${encodeURIComponent(systemPrompt + " | User: " + prompt)}?model=openai`);
-        if (!res.ok) throw new Error("Brain Server Busy");
-        const reply = await res.text();
-        await deliverResponse(reply);
-      } catch (err) {
-        // Offline / Fallback Local Brain Logic
-        let fallback = "Ji Boss, main sun raha hoon. Kuch takneeki dikkat aayi par main online hoon.";
-        const lower = prompt.toLowerCase();
-        if (lower.includes("kaun ho") || lower.includes("who are you")) {
-          fallback = "Main Cyras hoon Boss, aapka personal autonomous AI assistant.";
-        } else if (lower.includes("kaise ho")) {
-          fallback = "Main bilkul badhiya hoon Boss, command dijiye agla kya karna hai.";
-        }
-        await deliverResponse(fallback);
-      }
+    const userMessage = document.createElement("div");
+    userMessage.className = "message user-message";
+    userMessage.textContent = text;
+    messages.appendChild(userMessage);
+
+    textInput.innerText = "Type a message...";
+    messages.scrollTop = messages.scrollHeight;
+});
+
+textInput.addEventListener("focus", () => {
+    if(textInput.innerText === "Type a message..."){
+        textInput.innerText = "";
     }
+});
+</script>
 
-    async function deliverResponse(text) {
-      Memory.saveChat('cyras', text);
-      await speakText(text);
-      if (isLoopActive) {
-        startListening();
-      }
-    }
-
-    // Main Tap Trigger: Activates Welcome & Hands-Free Duplex Loop
-    orbBtn.addEventListener('click', async () => {
-      if (!isLoopActive) {
-        isLoopActive = true;
-        await speakText("Welcome Boss! Cyras is ready.");
-        startListening();
-      } else {
-        // Tap again to pause/reset loop
-        isLoopActive = false;
-        if (recognition) recognition.stop();
-        window.speechSynthesis.cancel();
-        isSpeaking = false;
-        orb.className = 'orb';
-        statusText.innerText = "Cyras paused. Tap Orb to restart.";
-      }
-    });
-  </script>
 </body>
 </html>
